@@ -12,11 +12,11 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  @Get(":id")
-  findAll(@Param() params: string) {
+  @Get("mine/:userId")
+  findAll(@Param("userId") params: any) {
     console.log(params);
 
-    return this.userService.findAll();
+    return "get it all";
   }
 
   @Get("all")
