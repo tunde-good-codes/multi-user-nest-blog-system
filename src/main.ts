@@ -1,12 +1,22 @@
 import { NestFactory } from "@nestjs/core";
 import * as dotenv from "dotenv";
 import { AppModule } from "./app/app.module";
+import { ValidationPipe } from "@nestjs/common";
 
 dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true, // CRITICAL: Enables automatic type transformation
+      transformOptions: {
+        enableImplicitConversion: true // Helps with query params
+      },
+      whitelist: true,
+      forbidNonWhitelisted: false // Set to false for query params
+    })
+  );
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
