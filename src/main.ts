@@ -14,7 +14,7 @@ async function bootstrap() {
         enableImplicitConversion: true // Helps with query params
       },
       whitelist: true,
-      forbidNonWhitelisted: false // Set to false for query params
+      forbidNonWhitelisted: false // Set to false for query params. if you include values not in dto in the body it'd throw error
     })
   );
   await app.listen(process.env.PORT ?? 3000);
