@@ -23,7 +23,10 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setVersion("1.0")
-    .setTitle("NestJs Masterclass  - Blog_API")
+    .setTitle("NestJs Masterclass  - Blog API")
+    .setDescription("the base url for this app is https://localhost:300")
+    .setTermsOfService("http://localhost:3000/terms-of-service")
+    .addServer("http:localhost:3000")
     .build();
   /**
    * instantiate document
