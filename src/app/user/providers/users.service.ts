@@ -27,4 +27,7 @@ export class UserService {
       }
     ];
   }
+  findOne(id: number) {
+    return `this id: ${id}`;
+  }
 }

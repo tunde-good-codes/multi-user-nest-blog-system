@@ -2,6 +2,7 @@
 import { Controller, Get, Param } from "@nestjs/common";
 import { UserService } from "./providers/users.service";
 import { ApiTags } from "@nestjs/swagger";
+import { GetUserParamDto } from "./dto/get-user-param-dto";
 
 @Controller("user")
 @ApiTags("User Section")
@@ -17,5 +18,11 @@ export class UserController {
     console.log(params);
 
     return "get it all";
+  }
+  @Get("{/:id}")
+  findAUser(@Param("id") params: GetUserParamDto) {
+    console.log(params);
+
+    return this.userService.findOne(99);
   }
 }
