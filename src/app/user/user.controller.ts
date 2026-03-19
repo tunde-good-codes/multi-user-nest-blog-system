@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Controller, Get, Param } from "@nestjs/common";
+import { Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Query } from "@nestjs/common";
 import { UserService } from "./providers/users.service";
-import { ApiQuery, ApiTags } from "@nestjs/swagger";
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { GetUserParamDto } from "./dto/get-user-param-dto";
 
 @Controller("user")
@@ -18,17 +18,35 @@ export class UserController {
     console.log(params);
     return "get it all";
   }
+
+  @ApiOperation({ description: "it fetches a list of selected users" })
+  @ApiResponse({
+    status: 200,
+    description: "list of selected users successfully based om query"
+  })
   @ApiQuery({
     name: "limit",
     type: "number",
-    required: false,
-    description: "highest data to release per time"
+    required: true,
+    description: "the number of entries return per query",
+    example: 10
   })
-  @Get("{/:id}")
-  findAUser(@Param() params: GetUserParamDto) {
+  @ApiQuery({
+    name: "page",
+    type: "number",
+    required: true,
+    description: "the position of the page number you want the api to  return",
+    example: 6
+  })
+  @Get("/:id?")
+  findAUser(
+    @Param() params: GetUserParamDto,
+    @Query("limit", new DefaultValuePipe(1), ParseIntPipe) limit: number,
+    @Query("page", new DefaultValuePipe(4), ParseIntPipe) page: number
+  ) {
     console.log(params);
     if (params.id) {
-      return this.userService.findOne(params.id);
+      return this.userService.findOne(params.id, limit, page);
     }
   }
 }

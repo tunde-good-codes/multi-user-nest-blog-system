@@ -27,7 +27,11 @@ export class UserService {
       }
     ];
   }
-  findOne(id: number) {
-    return `this id: ${id}`;
+  findOne(id: number, page: number, limit: number) {
+    return `this id: ${id} for ${page}  and ${limit}`;
+  }
+
+  findAll() {
+    return "all users";
   }
 }
