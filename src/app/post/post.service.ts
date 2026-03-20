@@ -11,4 +11,7 @@ export class PostService {
 
     return { user, message: "This action returns all post" };
   }
+  update(userid: number) {
+    return "updated";
+  }
 }

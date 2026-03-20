@@ -39,7 +39,7 @@ export class CreatePostDto {
   postType: postType;
 
   @ApiProperty({
-    description: "For Example - 'my-url'",
+    description: "a slug should be in small lettering. For Example - 'my-url'",
     example: "my-blog-post"
   })
   @IsString()
@@ -97,6 +97,25 @@ export class CreatePostDto {
   @IsInt({ each: true })
   tags?: number[];
 
+  @ApiPropertyOptional({
+    type: "array",
+    required: false,
+    items: {
+      type: "object",
+      properties: {
+        key: {
+          type: "string",
+          description: "key can be any identifier",
+          example: "sidebarEnabled"
+        },
+        values: {
+          type: "any",
+          description: "key can be any identifier",
+          example: true
+        }
+      }
+    }
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
