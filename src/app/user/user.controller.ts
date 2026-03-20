@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Query } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { UserService } from "./providers/users.service";
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { GetUserParamDto } from "./dto/get-user-param-dto";
+import { ApiTags } from "@nestjs/swagger";
+import { CreateUserDto } from "./dto/create-user.dto";
 
 @Controller("user")
 @ApiTags("User Section")
@@ -17,6 +17,11 @@ export class UserController {
   findAll(@Param("userId") params: any) {
     console.log(params);
     return "get it all";
+  }
+
+  @Post()
+  createUser(@Body() createUserDto: CreateUserDto) {
+    return this.userService.createUser(createUserDto);
   }
 
   // @ApiOperation({ description: "it fetches a list of selected users" })
