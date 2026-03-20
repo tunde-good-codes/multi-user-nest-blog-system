@@ -14,11 +14,10 @@ import {
   ValidateNested
 } from "class-validator";
 
-import { CreatePostMetaOptionsDto } from "../../meta-options/dtos/create-post-meta-options.dto";
 import { Type } from "class-transformer";
 import { postType } from "../enum/post-enum-types";
 import { postStatus } from "../enum/post-status-type";
-
+import { CreatePostMetaOptionsDto } from "../meta-options/create-post-meta-options.dto";
 
 export class CreatePostDto {
   @ApiProperty({
@@ -99,7 +98,8 @@ export class CreatePostDto {
   tags?: number[];
 
   @IsOptional()
+  @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreatePostMetaOptionsDto)
-  metaOptions?: CreatePostMetaOptionsDto;
+  metaOptions?: CreatePostMetaOptionsDto[];
 }
