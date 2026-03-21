@@ -6,6 +6,8 @@ import { PostModule } from "./post/post.module";
 import { AuthModule } from "./auth/auth.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
+import { TagsModule } from "./tags/tags.module";
+import { MetaOptionsModule } from "./meta-options/meta-options.module";
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }), // 👈 load .env first
@@ -25,7 +27,9 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
           rejectUnauthorized: false
         }
       })
-    })
+    }),
+    TagsModule,
+    MetaOptionsModule
   ],
 
   controllers: [AppController],
