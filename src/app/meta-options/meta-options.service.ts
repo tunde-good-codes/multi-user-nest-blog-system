@@ -1,11 +1,19 @@
-import { Injectable } from '@nestjs/common';
-import { CreateMetaOptionDto } from './dto/create-meta-option.dto';
-import { UpdateMetaOptionDto } from './dto/update-meta-option.dto';
+import { Injectable } from "@nestjs/common";
+import { UpdateMetaOptionDto } from "./dto/update-meta-option.dto";
+import { Repository } from "typeorm";
+import { MetaOption } from "./entities/meta-option.entity";
+import { InjectRepository } from "@nestjs/typeorm";
+import { CreatePostMetaOptionsDto } from "./dto/create-post-meta-options.dto";
 
 @Injectable()
 export class MetaOptionsService {
-  create(createMetaOptionDto: CreateMetaOptionDto) {
-    return 'This action adds a new metaOption';
+  constructor(
+    @InjectRepository(MetaOption)
+    private readonly metaOptionRepository: Repository<MetaOption>
+  ) {}
+  async create(createPostMetaOptionsDto: CreatePostMetaOptionsDto) {
+    const metaOption = this.metaOptionRepository.create(createPostMetaOptionsDto);
+    return await this.metaOptionRepository.save(metaOption);
   }
 
   findAll() {
