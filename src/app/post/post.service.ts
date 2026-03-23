@@ -19,29 +19,79 @@ export class PostService {
   ) {}
 
   async create(createPostDto: CreatePostDto) {
-    const metaOption = createPostDto.metaOptions
-      ? this.metaOptionRepository.create(createPostDto.metaOptions)
-      : null;
+    // cascading allows for smooth creations of relating entities
+    // const metaOption = createPostDto.metaOptions
+    //   ? this.metaOptionRepository.create(createPostDto.metaOptions)
+    //   : null;
 
-    if (metaOption) {
-      await await this.metaOptionRepository.save(metaOption);
-    }
+    // if (metaOption) {
+    //   await await this.metaOptionRepository.save(metaOption);
+    // }
 
     const newPost = this.postRepository.create(createPostDto);
 
-    if (metaOption) {
-      newPost.metaOptions = metaOption;
-    }
+    // if (metaOption) {
+    //   newPost.metaOptions = metaOption;
+    // }
 
     return await this.postRepository.save(newPost);
   }
-  findAll(userId: string) {
+  async findAll(userId: string) {
     const user = this.userService.findOneById(userId);
-    console.log(userId);
+    const posts = await this.postRepository.find({
+      relations: {
+        metaOptions: true
+      }
+    });
 
-    return { user, message: "This action returns all post" };
+    return { posts, message: "This action returns all post" };
   }
   update(userid: number) {
     return "updated";
+  }
+
+  async delete(id: number) {
+    // try {
+    //   // get the post you want to delete
+    //   const post = await this.postRepository.findOneBy({ id });
+
+    //   // delete the post
+
+    //   await this.postRepository.delete(id);
+
+    //   // delete metaOption related to the post
+
+    //   if (post?.metaOptions?.id) {
+    //     await this.metaOptionRepository.delete(post?.metaOptions?.id);
+    //   }
+
+    //   return {
+    //     deleted: true,
+    //     id,
+    //     message: "post deleted successfully with id: " + id
+    //   };
+    // } catch (e) {
+    //   console.log(e.message);
+    // }
+
+    // using metaOption to find post
+
+    // const post = await this.postRepository.findOneBy({ id });
+
+    // const postViaMetaOption = await this.metaOptionRepository.find({
+    //   where: { id: post?.metaOptions?.id },
+    //   relations: {
+    //     post: true
+    //   }
+    // });
+
+    // console.log(postViaMetaOption);
+    // after cascade set to true on metaOption,  delete on post will auto delete on meta-option
+    const post = await this.postRepository.delete(id);
+    return {
+      deleted: true,
+      id,
+      post
+    };
   }
 }

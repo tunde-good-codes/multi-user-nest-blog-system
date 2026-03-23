@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn
@@ -25,5 +26,6 @@ export class MetaOption {
   updatedAt: Date;
 
   @OneToOne(() => Post, (post) => post.metaOptions, { onDelete: "CASCADE" })
+  @JoinColumn()
   post: Post;
 }

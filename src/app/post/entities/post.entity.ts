@@ -66,7 +66,7 @@ export class Post {
   })
   publishedOn?: Date;
   @OneToOne(() => MetaOption, (metaOption) => metaOption.post, { cascade: true, eager: true })
-  @JoinColumn()
+  // @JoinColumn()  this is to ensure metaOption get deleted when post is deleted
   metaOptions?: MetaOption;
   //   @ManyToOne(() => User, (user) => user.posts, { eager: true })
   //   author: User;

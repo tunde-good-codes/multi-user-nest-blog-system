@@ -28,7 +28,6 @@ export class UserService {
   }
   public findOneById(id: string) {
     const auth = this.authService.isAuth();
-    console.log(auth);
 
     return [
       {
