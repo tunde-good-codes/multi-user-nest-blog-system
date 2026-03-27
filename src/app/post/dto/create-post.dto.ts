@@ -86,10 +86,10 @@ export class CreatePostDto {
   })
   @IsISO8601()
   @IsOptional()
-  publishedOn?: string;
+  publishedOn?: Date;
 
   @ApiPropertyOptional({
-    description: "Array of tags passed as string values",
+    description: "Array of  id of tags passed as values",
     example: [1, 2]
   })
   @IsOptional()

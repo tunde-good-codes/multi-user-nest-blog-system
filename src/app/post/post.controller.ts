@@ -19,9 +19,9 @@ import { UpdatePostDto } from "./dto/update-post.dto";
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
-  @Get("{/:userId}")
-  getPosts(@Param("userId") userId: number) {
-    return this.postService.findAll(userId);
+  @Get()
+  getPosts() {
+    return this.postService.findAll();
   }
 
   @ApiResponse({
@@ -53,6 +53,6 @@ export class PostController {
   })
   @Patch()
   updatePost(@Body() patchPostDto: UpdatePostDto) {
-    return this.postService.update(patchPostDto.id);
+    return this.postService.update(patchPostDto);
   }
 }

@@ -6,11 +6,15 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { MetaOption } from "../meta-options/entities/meta-option.entity";
 import { Repository } from "typeorm";
 import { Post } from "./entities/post.entity";
+import { TagsService } from "../tags/tags.service";
+import { Tag } from "../tags/entities/tag.entity";
+import { UpdatePostDto } from "./dto/update-post.dto";
 
 @Injectable()
 export class PostService {
   constructor(
     private readonly userService: UserService,
+    private readonly tagsService: TagsService,
 
     @InjectRepository(MetaOption)
     private readonly metaOptionRepository: Repository<MetaOption>,
@@ -28,12 +32,20 @@ export class PostService {
     //   await await this.metaOptionRepository.save(metaOption);
     // }
     const author = await this.userService.findOneById(createPostDto.authorId);
+
+    let tags: Tag[] = [];
+
+    if (createPostDto.tags && createPostDto.tags.length > 0) {
+      tags = await this.tagsService.findMultipleTags(createPostDto.tags);
+    }
+
     if (!author) {
       throw new NotFoundException(`Author with ID ${createPostDto.authorId} not found`);
     }
     const newPost = this.postRepository.create({
       ...createPostDto,
-      author: author
+      author: author,
+      tags
     });
 
     // if (metaOption) {
@@ -42,18 +54,45 @@ export class PostService {
 
     return await this.postRepository.save(newPost);
   }
-  async findAll(userId: number) {
-    const user = this.userService.findOneById(userId);
+  async findAll() {
     const posts = await this.postRepository.find({
       relations: {
         metaOptions: true
+        // author: true
       }
     });
 
     return { posts, message: "This action returns all post" };
   }
-  update(userid: number) {
-    return "updated";
+  async update(updatePostDto: UpdatePostDto) {
+    let tags: Tag[] = [];
+
+    if (updatePostDto.tags && updatePostDto.tags.length > 0) {
+      tags = await this.tagsService.findMultipleTags(updatePostDto.tags);
+    }
+
+    const post = await this.postRepository.findOneBy({ id: updatePostDto.id });
+
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${updatePostDto.id} not found`);
+    }
+
+    post.title = updatePostDto.title ?? post?.title;
+    post.content = updatePostDto.content ?? post?.content;
+    post.status = updatePostDto.status ?? post?.status;
+    post.postType = updatePostDto.postType ?? post?.postType;
+    post.slug = updatePostDto.slug ?? post?.slug;
+    post.featuredImageUrl = updatePostDto.featuredImageUrl ?? post?.featuredImageUrl;
+    post.publishedOn = updatePostDto.publishedOn ?? post?.publishedOn;
+    post.tags = tags;
+
+    await this.postRepository.save(post);
+
+    return {
+      success: true,
+      message: "updated successfully",
+      post
+    };
   }
 
   async delete(id: number) {

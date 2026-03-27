@@ -7,6 +7,7 @@ import { Tag } from "./entities/tag.entity";
 @Module({
   controllers: [TagsController],
   providers: [TagsService],
-  imports: [TypeOrmModule.forFeature([Tag])]
+  imports: [TypeOrmModule.forFeature([Tag])],
+  exports: [TagsService]
 })
 export class TagsModule {}
