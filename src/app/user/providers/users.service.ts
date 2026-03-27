@@ -26,23 +26,10 @@ export class UserService {
     newUser = await this.userRepository.save(newUser);
     return newUser;
   }
-  public findOneById(id: string) {
-    const auth = this.authService.isAuth();
-
-    return [
-      {
-        id: 123,
-        firstName: "ola",
-        lastName: "ola-ide",
-        email: "ola.mail.com"
-      },
-      {
-        id: 133,
-        firstName: "fola",
-        lastName: "olsa-ide",
-        email: "w3.mail.com"
-      }
-    ];
+  public async findOneById(id: number) {
+    return this.userRepository.findOneBy({
+      id
+    });
   }
   findOne(id: number, page: number, limit: number) {
     return `this id: ${id} for ${page}  and ${limit}`;

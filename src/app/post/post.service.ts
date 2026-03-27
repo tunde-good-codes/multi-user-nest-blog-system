@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/await-thenable */
 import { CreatePostDto } from "./dto/create-post.dto";
-import { Injectable } from "@nestjs/common";
+import { Body, Injectable, NotFoundException } from "@nestjs/common";
 import { UserService } from "../user/providers/users.service";
 import { InjectRepository } from "@nestjs/typeorm";
 import { MetaOption } from "../meta-options/entities/meta-option.entity";
@@ -18,7 +18,7 @@ export class PostService {
     private readonly postRepository: Repository<Post>
   ) {}
 
-  async create(createPostDto: CreatePostDto) {
+  async create(@Body() createPostDto: CreatePostDto) {
     // cascading allows for smooth creations of relating entities
     // const metaOption = createPostDto.metaOptions
     //   ? this.metaOptionRepository.create(createPostDto.metaOptions)
@@ -27,8 +27,14 @@ export class PostService {
     // if (metaOption) {
     //   await await this.metaOptionRepository.save(metaOption);
     // }
-
-    const newPost = this.postRepository.create(createPostDto);
+    const author = await this.userService.findOneById(createPostDto.authorId);
+    if (!author) {
+      throw new NotFoundException(`Author with ID ${createPostDto.authorId} not found`);
+    }
+    const newPost = this.postRepository.create({
+      ...createPostDto,
+      author: author
+    });
 
     // if (metaOption) {
     //   newPost.metaOptions = metaOption;
@@ -36,7 +42,7 @@ export class PostService {
 
     return await this.postRepository.save(newPost);
   }
-  async findAll(userId: string) {
+  async findAll(userId: number) {
     const user = this.userService.findOneById(userId);
     const posts = await this.postRepository.find({
       relations: {
