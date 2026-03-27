@@ -105,7 +105,7 @@ export class CreatePostDto {
       properties: {
         metaValue: {
           type: "json",
-          description: "the meta-value is a json string",
+          description: "the meta-value is a json string/value",
           example: "{`sidebarEnabled`:true}"
         }
       }
@@ -115,4 +115,13 @@ export class CreatePostDto {
   @ValidateNested({ each: true })
   @Type(() => CreatePostMetaOptionsDto)
   metaOptions?: CreatePostMetaOptionsDto;
+
+  @ApiProperty({
+    type: "integer",
+    required: true,
+    example: 1
+  })
+  @IsInt()
+  @IsNotEmpty()
+  authorId: number;
 }

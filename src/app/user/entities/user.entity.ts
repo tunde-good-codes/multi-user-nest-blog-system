@@ -1,5 +1,7 @@
+/* eslint-disable prettier/prettier */
 import { Exclude } from "class-transformer";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Post } from "src/app/post/entities/post.entity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -35,4 +37,7 @@ export class User {
   })
   @Exclude()
   password?: string;
+
+  @OneToMany(() => Post, (post) => post.author)
+  posts: Post[];
 }

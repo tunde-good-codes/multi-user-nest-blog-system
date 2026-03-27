@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { postType } from "../enum/post-enum-types";
 import { postStatus } from "../enum/post-status-type";
 import { MetaOption } from "src/app/meta-options/entities/meta-option.entity";
+import { User } from "src/app/user/entities/user.entity";
 //import { Tag } from "src/tags/tag.entity";
 
 @Entity()
@@ -68,8 +69,10 @@ export class Post {
   @OneToOne(() => MetaOption, (metaOption) => metaOption.post, { cascade: true, eager: true })
   // @JoinColumn()  this is to ensure metaOption get deleted when post is deleted
   metaOptions?: MetaOption;
-  //   @ManyToOne(() => User, (user) => user.posts, { eager: true })
-  //   author: User;
+
+  @ManyToOne(() => User, (user) => user.posts)
+  author: User;
+
   //   //   @ManyToMany(() => Tag, (tag) => tag.posts, { eager: true })
   //   @JoinTable()
   //   tags?: Tag[];
