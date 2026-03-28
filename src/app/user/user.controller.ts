@@ -19,6 +19,11 @@ export class UserController {
     return "get it all";
   }
 
+  @Get()
+  getAll() {
+    return this.userService.findAll();
+  }
+
   @Post()
   createUser(@Body() createUserDto: CreateUserDto) {
     return this.userService.createUser(createUserDto);

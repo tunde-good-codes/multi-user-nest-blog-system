@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Delete, Param, ParseIntPipe } from "@nestjs/common";
+import { Controller, Get, Post, Body, Delete, ParseIntPipe, Query } from "@nestjs/common";
 import { TagsService } from "./tags.service";
 import { CreateTagDto } from "./dto/create-tag.dto";
 
@@ -15,9 +15,18 @@ export class TagsController {
   findMultiple() {
     return this.tagsService.findMultipleTags([3, 8]);
   }
+  @Get("/all")
+  findTags() {
+    return this.tagsService.findTags();
+  }
 
   @Delete()
-  delete(@Param("id", ParseIntPipe) id: number) {
+  delete(@Query("id", ParseIntPipe) id: number) {
     return this.tagsService.remove(id);
+  }
+
+  @Delete("/soft")
+  softDelete(@Query("id", ParseIntPipe) id: number) {
+    return this.tagsService.softRemove(id);
   }
 }

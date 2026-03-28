@@ -8,9 +8,20 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TagsModule } from "./tags/tags.module";
 import { MetaOptionsModule } from "./meta-options/meta-options.module";
+import appConfig from "src/config/app.config";
+import databaseConfig from "src/config/database.config";
+import environmentValidation from "src/config/environment.validation";
+
+const env = process.env.NODE_ENV;
+
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }), // 👈 load .env first
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: !env ? ".env" : `.env.${env}`,
+      load: [appConfig, databaseConfig],
+      validationSchema: environmentValidation
+    }), // 👈 load .env first and makes it available in all the modules
 
     UserModule,
     PostModule,

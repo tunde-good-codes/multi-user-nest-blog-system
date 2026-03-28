@@ -85,7 +85,7 @@
       "json",
       "ts"
     ],
-    "rootDir": "../",
+    "rootDir": "./",
     "modulePaths": [
       "<rootDir>"
     ],
