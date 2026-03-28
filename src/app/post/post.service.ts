@@ -1,6 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/await-thenable */
 import { CreatePostDto } from "./dto/create-post.dto";
-import { Body, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Body,
+  Injectable,
+  NotFoundException,
+  RequestTimeoutException
+} from "@nestjs/common";
 import { UserService } from "../user/providers/users.service";
 import { InjectRepository } from "@nestjs/typeorm";
 import { MetaOption } from "../meta-options/entities/meta-option.entity";
@@ -66,33 +73,41 @@ export class PostService {
   }
   async update(updatePostDto: UpdatePostDto) {
     let tags: Tag[] = [];
+    let post: any;
 
-    if (updatePostDto.tags && updatePostDto.tags.length > 0) {
+    try {
+      if (!tags || tags.length !== updatePostDto.tags?.length) {
+        throw new BadRequestException("please ensure tag id are correct");
+      }
+
       tags = await this.tagsService.findMultipleTags(updatePostDto.tags);
+      post = await this.postRepository.findOneBy({ id: updatePostDto.id });
+
+      if (!post) {
+        throw new NotFoundException(`Post with ID ${updatePostDto.id} not found`);
+      }
+
+      post.title = updatePostDto.title ?? post?.title;
+      post.content = updatePostDto.content ?? post?.content;
+      post.status = updatePostDto.status ?? post?.status;
+      post.postType = updatePostDto.postType ?? post?.postType;
+      post.slug = updatePostDto.slug ?? post?.slug;
+      post.featuredImageUrl = updatePostDto.featuredImageUrl ?? post?.featuredImageUrl;
+      post.publishedOn = updatePostDto.publishedOn ?? post?.publishedOn;
+      post.tags = tags;
+
+      await this.postRepository.save(post);
+
+      return {
+        success: true,
+        message: "updated successfully",
+        post
+      };
+    } catch (e) {
+      throw new RequestTimeoutException("unable to process your request at the moment", {
+        description: "Error connecting to db: " + e.message
+      });
     }
-
-    const post = await this.postRepository.findOneBy({ id: updatePostDto.id });
-
-    if (!post) {
-      throw new NotFoundException(`Post with ID ${updatePostDto.id} not found`);
-    }
-
-    post.title = updatePostDto.title ?? post?.title;
-    post.content = updatePostDto.content ?? post?.content;
-    post.status = updatePostDto.status ?? post?.status;
-    post.postType = updatePostDto.postType ?? post?.postType;
-    post.slug = updatePostDto.slug ?? post?.slug;
-    post.featuredImageUrl = updatePostDto.featuredImageUrl ?? post?.featuredImageUrl;
-    post.publishedOn = updatePostDto.publishedOn ?? post?.publishedOn;
-    post.tags = tags;
-
-    await this.postRepository.save(post);
-
-    return {
-      success: true,
-      message: "updated successfully",
-      post
-    };
   }
 
   async delete(id: number) {

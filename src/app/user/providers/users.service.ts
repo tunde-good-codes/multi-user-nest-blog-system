@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   BadRequestException,
@@ -38,14 +39,26 @@ export class UserService {
       return newUser;
     } catch (e: any) {
       throw new RequestTimeoutException("unable to process your request at the moment", {
-        description: "Error connecting to db"
+        description: "Error connecting to db: " + e.message
       });
     }
   }
   public async findOneById(id: number) {
-    return this.userRepository.findOneBy({
-      id
-    });
+    let user;
+    try {
+      user = await this.userRepository.findOneBy({
+        id
+      });
+
+      if (!user) {
+        throw new BadRequestException("user not found with this id: " + id);
+      }
+    } catch (e: any) {
+      throw new RequestTimeoutException("unable to process your request at the moment", {
+        description: "Error connecting to db: " + e.message
+      });
+    }
+    return user;
   }
   findOne(id: number, page: number, limit: number) {
     return `this id: ${id} for ${page}  and ${limit}`;
