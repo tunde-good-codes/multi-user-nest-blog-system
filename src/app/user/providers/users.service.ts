@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  RequestTimeoutException
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { AuthService } from "src/app/auth/auth.service";
 import { User } from "../entities/user.entity";
@@ -17,17 +23,24 @@ export class UserService {
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
-    const existingUser = await this.userRepository.findOne({
-      where: { email: createUserDto.email }
-    });
+    let existingUser;
+    try {
+      existingUser = await this.userRepository.findOne({
+        where: { email: createUserDto.email }
+      });
 
-    if (existingUser) {
-      throw new Error("already exisitng");
+      if (existingUser) {
+        throw new BadRequestException("user already existing with this  Email");
+      }
+
+      let newUser = this.userRepository.create(createUserDto);
+      newUser = await this.userRepository.save(newUser);
+      return newUser;
+    } catch (e: any) {
+      throw new RequestTimeoutException("unable to process your request at the moment", {
+        description: "Error connecting to db"
+      });
     }
-
-    let newUser = this.userRepository.create(createUserDto);
-    newUser = await this.userRepository.save(newUser);
-    return newUser;
   }
   public async findOneById(id: number) {
     return this.userRepository.findOneBy({
