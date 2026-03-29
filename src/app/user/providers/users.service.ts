@@ -10,7 +10,7 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { AuthService } from "src/app/auth/auth.service";
 import { User } from "../entities/user.entity";
-import { Repository } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { ConfigService } from "@nestjs/config";
 
@@ -20,7 +20,9 @@ export class UserService {
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
     @InjectRepository(User) private userRepository: Repository<User>,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+
+    private readonly dataSource: DataSource
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
@@ -41,6 +43,31 @@ export class UserService {
       throw new RequestTimeoutException("unable to process your request at the moment", {
         description: "Error connecting to db: " + e.message
       });
+    }
+  }
+
+  async createMany(createUserDto: CreateUserDto[]) {
+    const newUsers: User[] = [];
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      for (const user of createUserDto) {
+        const newUser = queryRunner.manager.create(User, user);
+        const result = await queryRunner.manager.save(newUser);
+        newUsers.push(result);
+      }
+      // if successful
+      await queryRunner.commitTransaction();
+    } catch (error: any) {
+      // if not successful
+
+      await queryRunner.rollbackTransaction();
+      console.log(error.message);
+    } finally {
+      await queryRunner.release();
     }
   }
   public async findOneById(id: number) {
