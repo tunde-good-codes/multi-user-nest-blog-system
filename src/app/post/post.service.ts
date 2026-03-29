@@ -16,6 +16,7 @@ import { Post } from "./entities/post.entity";
 import { TagsService } from "../tags/tags.service";
 import { Tag } from "../tags/entities/tag.entity";
 import { UpdatePostDto } from "./dto/update-post.dto";
+import { GetPostsDto } from "./dto/get-post.dto";
 
 @Injectable()
 export class PostService {
@@ -61,15 +62,23 @@ export class PostService {
 
     return await this.postRepository.save(newPost);
   }
-  async findAll() {
-    const posts = await this.postRepository.find({
-      relations: {
-        metaOptions: true
-        // author: true
-      }
+  async findAll(userId: number) {
+    const author = await this.userService.findOneById(userId);
+    const posts = await this.postRepository.findOneBy({
+      author
     });
 
     return { posts, message: "This action returns all post" };
+  }
+  async findAllPosts(postQuery: GetPostsDto) {
+    const limit = postQuery.limit ?? 10;
+    const page = postQuery.page ?? 1;
+    const posts = await this.postRepository.find({
+      take: limit,
+      skip: (page - 1) * limit
+    });
+
+    return { posts, message: "This action returns all post", totalPosts: posts.length };
   }
   async update(updatePostDto: UpdatePostDto) {
     let tags: Tag[] = [];

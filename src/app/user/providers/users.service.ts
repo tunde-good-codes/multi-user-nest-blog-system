@@ -72,10 +72,12 @@ export class UserService {
     return `this id: ${id} for ${page}  and ${limit}`;
   }
 
-  findAll() {
-    const jwt_secret = this.configService.get<string>("JWT_SECRET");
-    console.log(jwt_secret);
+  async findAll() {
+    const users = await this.userRepository.find();
 
-    return "all users";
+    return {
+      users,
+      success: true
+    };
   }
 }
