@@ -3,6 +3,7 @@ import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { UserService } from "./providers/users.service";
 import { ApiTags } from "@nestjs/swagger";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { CreateManyUsersDto } from "./dto/create-many-userss.dto";
 
 @Controller("user")
 @ApiTags("User Section")
@@ -27,6 +28,10 @@ export class UserController {
   @Post()
   createUser(@Body() createUserDto: CreateUserDto) {
     return this.userService.createUser(createUserDto);
+  }
+  @Post("many-create")
+  createManyUsers(@Body() createUsersDto: CreateManyUsersDto) {
+    return this.userService.createMany(createUsersDto);
   }
 
   // @ApiOperation({ description: "it fetches a list of selected users" })
