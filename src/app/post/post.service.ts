@@ -17,6 +17,8 @@ import { TagsService } from "../tags/tags.service";
 import { Tag } from "../tags/entities/tag.entity";
 import { UpdatePostDto } from "./dto/update-post.dto";
 import { GetPostsDto } from "./dto/get-post.dto";
+import { PaginationProvider } from "src/common/pagination/pagination.provider";
+import { Paginated } from "src/common/pagination/interfaces/paginatedInterface";
 
 @Injectable()
 export class PostService {
@@ -27,7 +29,8 @@ export class PostService {
     @InjectRepository(MetaOption)
     private readonly metaOptionRepository: Repository<MetaOption>,
     @InjectRepository(Post)
-    private readonly postRepository: Repository<Post>
+    private readonly postRepository: Repository<Post>,
+    private readonly paginationProvider: PaginationProvider
   ) {}
 
   async create(@Body() createPostDto: CreatePostDto) {
@@ -70,15 +73,15 @@ export class PostService {
 
     return { posts, message: "This action returns all post" };
   }
-  async findAllPosts(postQuery: GetPostsDto) {
-    const limit = postQuery.limit ?? 10;
+  async findAllPosts(postQuery: GetPostsDto): Promise<Paginated<Post>> {
+    const limit = postQuery.limit ?? 4;
     const page = postQuery.page ?? 1;
-    const posts = await this.postRepository.find({
-      take: limit,
-      skip: (page - 1) * limit
-    });
 
-    return { posts, message: "This action returns all post", totalPosts: posts.length };
+    const posts = await this.paginationProvider.paginateQuery(
+      { limit: limit, page: page },
+      this.postRepository
+    );
+    return posts;
   }
   async update(updatePostDto: UpdatePostDto) {
     let tags: Tag[] = [];

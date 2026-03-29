@@ -11,6 +11,7 @@ import { MetaOptionsModule } from "./meta-options/meta-options.module";
 import appConfig from "src/config/app.config";
 import databaseConfig from "src/config/database.config";
 import environmentValidation from "src/config/environment.validation";
+import { PaginationModule } from "src/common/pagination/pagination.module";
 
 const env = process.env.NODE_ENV;
 
@@ -26,6 +27,7 @@ const env = process.env.NODE_ENV;
     UserModule,
     PostModule,
     AuthModule,
+    PaginationModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
