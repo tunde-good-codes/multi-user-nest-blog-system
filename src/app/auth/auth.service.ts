@@ -1,6 +1,7 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { CreateAuthDto } from "./dto/create-auth.dto";
 import { UserService } from "../user/providers/users.service";
+import { SignInDto } from "./dto/sign-in.dto";
 
 @Injectable()
 export class AuthService {
@@ -15,4 +16,6 @@ export class AuthService {
   isAuth() {
     return false;
   }
+
+  async signIn(signinDto: SignInDto) {}
 }

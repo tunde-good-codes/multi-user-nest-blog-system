@@ -15,6 +15,8 @@ import { CreateUserDto } from "../dto/create-user.dto";
 import { ConfigService } from "@nestjs/config";
 import { UsersCreateManyProvider } from "./users-create-many-providers";
 import { CreateManyUsersDto } from "../dto/create-many-userss.dto";
+import { CreateUserProvider } from "./create-user-provider";
+import { FindOneUserByEmailProvider } from "./find-one-user-by-email";
 
 @Injectable()
 export class UserService {
@@ -24,28 +26,13 @@ export class UserService {
     @InjectRepository(User) private userRepository: Repository<User>,
     private readonly configService: ConfigService,
 
-    private readonly usersCreateManyProvider: UsersCreateManyProvider
+    private readonly usersCreateManyProvider: UsersCreateManyProvider,
+    private readonly createUserProvider: CreateUserProvider,
+    private readonly findOneUserByEmailProvider: FindOneUserByEmailProvider
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
-    let existingUser;
-    try {
-      existingUser = await this.userRepository.findOne({
-        where: { email: createUserDto.email }
-      });
-
-      if (existingUser) {
-        throw new BadRequestException("user already existing with this  Email");
-      }
-
-      let newUser = this.userRepository.create(createUserDto);
-      newUser = await this.userRepository.save(newUser);
-      return newUser;
-    } catch (e: any) {
-      throw new RequestTimeoutException("unable to process your request at the moment", {
-        description: "Error connecting to db: " + e.message
-      });
-    }
+    return await this.createUserProvider.createUser(createUserDto);
   }
 
   async createMany(createUserDto: CreateManyUsersDto) {
@@ -78,6 +65,26 @@ export class UserService {
     return {
       users,
       success: true
+    };
+  }
+  async deleteById(userId: number) {
+    const user = await this.userRepository.findOneBy({
+      id: userId
+    });
+
+    return {
+      user,
+      success: true,
+      message: `user with id: ${userId} deleted `
+    };
+  }
+  async findUserByEmail(email: string) {
+    const user = await this.findOneUserByEmailProvider.findUserByEmail(email);
+
+    return {
+      user,
+      success: true,
+      message: `user with email: ${email} found!`
     };
   }
 }

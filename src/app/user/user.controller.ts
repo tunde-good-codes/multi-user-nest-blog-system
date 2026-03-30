@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Post, Query } from "@nestjs/common";
 import { UserService } from "./providers/users.service";
 import { ApiTags } from "@nestjs/swagger";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -14,12 +14,6 @@ export class UserController {
     private readonly userService: UserService
   ) {}
 
-  @Get("mine/:userId")
-  findAll(@Param("userId") params: any) {
-    console.log(params);
-    return "get it all";
-  }
-
   @Get()
   getAll() {
     return this.userService.findAll();
@@ -32,6 +26,10 @@ export class UserController {
   @Post("many-create")
   createManyUsers(@Body() createUsersDto: CreateManyUsersDto) {
     return this.userService.createMany(createUsersDto);
+  }
+  @Delete("many-create")
+  deleteUser(@Query("userId") userId: number) {
+    return this.userService.deleteById(userId);
   }
 
   // @ApiOperation({ description: "it fetches a list of selected users" })
@@ -59,7 +57,6 @@ export class UserController {
   //   @Query("limit", new DefaultValuePipe(1), ParseIntPipe) limit: number,
   //   @Query("page", new DefaultValuePipe(4), ParseIntPipe) page: number
   // ) {
-  //   console.log(params);
   //   if (params.id) {
   //     return this.userService.findOne(params.id, limit, page);
   //   }
