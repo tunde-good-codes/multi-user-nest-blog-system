@@ -36,7 +36,7 @@ export class User {
     nullable: true
   })
   @Exclude()
-  password?: string;
+  password: string;
 
   @OneToMany(() => Post, (post) => post.author)
   posts: Post[];
