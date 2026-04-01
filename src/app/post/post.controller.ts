@@ -30,9 +30,7 @@ export class PostController {
   })
   @Post()
   createPost(@Body() createPostDto: CreatePostDto, @ActiveUser() user: ActiveUserData) {
-    console.log(user);
-
-    //return this.postService.create(createPostDto);
+    return this.postService.create(createPostDto, user);
   }
 
   @ApiOperation({ description: "deleted an existing   blog post" })

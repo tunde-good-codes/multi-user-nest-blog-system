@@ -19,6 +19,8 @@ import { UpdatePostDto } from "./dto/update-post.dto";
 import { GetPostsDto } from "./dto/get-post.dto";
 import { PaginationProvider } from "src/common/pagination/pagination.provider";
 import { Paginated } from "src/common/pagination/interfaces/paginatedInterface";
+import { CreatePostProvider } from "./providers/create-post-provider";
+import type { ActiveUserData } from "../auth/interface/active-user-data-interface";
 
 @Injectable()
 export class PostService {
@@ -30,40 +32,12 @@ export class PostService {
     private readonly metaOptionRepository: Repository<MetaOption>,
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
-    private readonly paginationProvider: PaginationProvider
+    private readonly paginationProvider: PaginationProvider,
+    private readonly createPostProvider: CreatePostProvider
   ) {}
 
-  async create(@Body() createPostDto: CreatePostDto) {
-    // cascading allows for smooth creations of relating entities
-    // const metaOption = createPostDto.metaOptions
-    //   ? this.metaOptionRepository.create(createPostDto.metaOptions)
-    //   : null;
-
-    // if (metaOption) {
-    //   await await this.metaOptionRepository.save(metaOption);
-    // }
-    const author = await this.userService.findOneById(createPostDto.authorId);
-
-    let tags: Tag[] = [];
-
-    if (createPostDto.tags && createPostDto.tags.length > 0) {
-      tags = await this.tagsService.findMultipleTags(createPostDto.tags);
-    }
-
-    if (!author) {
-      throw new NotFoundException(`Author with ID ${createPostDto.authorId} not found`);
-    }
-    const newPost = this.postRepository.create({
-      ...createPostDto,
-      author: author,
-      tags
-    });
-
-    // if (metaOption) {
-    //   newPost.metaOptions = metaOption;
-    // }
-
-    return await this.postRepository.save(newPost);
+  async create(createPostDto: CreatePostDto, user: ActiveUserData) {
+    return await this.createPostProvider.create(createPostDto, user);
   }
   async findAll(userId: number) {
     const author = await this.userService.findOneById(userId);
