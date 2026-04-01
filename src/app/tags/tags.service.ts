@@ -29,8 +29,6 @@ export class TagsService {
   }
   async findTags() {
     const tags = await this.tagRepository.find();
-    console.log("Found tags:", tags); // Check what's actually being returned
-    console.log("Total count:", tags.length);
     return {
       tags,
       total: tags.length

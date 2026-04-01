@@ -78,13 +78,7 @@ export class UserService {
       message: `user with id: ${userId} deleted `
     };
   }
-  async findUserByEmail(email: string) {
-    const user = await this.findOneUserByEmailProvider.findUserByEmail(email);
-
-    return {
-      user,
-      success: true,
-      message: `user with email: ${email} found!`
-    };
+  findUserByEmail(email: string) {
+    return this.findOneUserByEmailProvider.findUserByEmail(email);
   }
 }

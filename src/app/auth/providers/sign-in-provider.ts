@@ -38,7 +38,7 @@ export class SignInProvider {
       }
       const isPasswordCorrect = await this.hashingProvider.comparePassword(
         signInDto.password,
-        user.user.password
+        user.password
       );
 
       if (!isPasswordCorrect) {
@@ -49,8 +49,8 @@ export class SignInProvider {
 
       const accessToken = await this.jwtService.signAsync(
         {
-          sub: user.user.id,
-          email: user.user.email
+          sub: user.id,
+          email: user.email
         },
         {
           audience: this.jwtConfiguration.audience,
@@ -60,17 +60,18 @@ export class SignInProvider {
         }
       );
       return {
-        success: true,
-        message: "sign in successfully",
         accessToken,
-        user
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName
+        }
       };
     } catch (e) {
       throw new RequestTimeoutException("Internal Server Error", {
         description: "request timed out: " + e.message
       });
     }
-    // const { accessToken, refreshToken } = await this.generateTokenProvider.generateTokens(user);
-    //   return { success: true, user, accessToken, refreshToken };
   }
 }

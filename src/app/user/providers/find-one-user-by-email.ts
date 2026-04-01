@@ -1,4 +1,4 @@
-import { Injectable, RequestTimeoutException, UnauthorizedException } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../entities/user.entity";
@@ -11,16 +11,12 @@ export class FindOneUserByEmailProvider {
   ) {}
 
   async findUserByEmail(email: string) {
-    try {
-      const user = await this.userRepository.findOneBy({ email });
-      if (!user) {
-        throw new UnauthorizedException("user with this email not fond");
-      }
-      return user;
-    } catch (e) {
-      throw new RequestTimeoutException(e, {
-        description: "could not fetch this user with the provided email"
-      });
+    const user = await this.userRepository.findOneBy({ email });
+
+    if (!user) {
+      throw new UnauthorizedException("Invalid email or password");
     }
+
+    return user;
   }
 }

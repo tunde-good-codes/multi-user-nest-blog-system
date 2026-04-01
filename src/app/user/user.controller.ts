@@ -4,6 +4,8 @@ import { UserService } from "./providers/users.service";
 import { ApiTags } from "@nestjs/swagger";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { CreateManyUsersDto } from "./dto/create-many-userss.dto";
+import { Auth } from "../auth/decorators/auth.decorators";
+import { AuthType } from "../auth/enum/auth.enum";
 
 @Controller("user")
 @ApiTags("User Section")
@@ -14,6 +16,7 @@ export class UserController {
     private readonly userService: UserService
   ) {}
 
+  @Auth(AuthType.None)
   @Get()
   getAll() {
     return this.userService.findAll();
