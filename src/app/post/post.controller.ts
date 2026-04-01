@@ -1,9 +1,11 @@
+import type { ActiveUserData } from "./../auth/interface/active-user-data-interface";
 import { Body, Controller, Delete, Get, ParseIntPipe, Patch, Post, Query } from "@nestjs/common";
 import { PostService } from "./post.service";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { CreatePostDto } from "./dto/create-post.dto";
 import { UpdatePostDto } from "./dto/update-post.dto";
 import { GetPostsDto } from "./dto/get-post.dto";
+import { ActiveUser } from "../auth/decorators/active-user-decorator";
 
 @ApiTags("Post Section")
 @Controller("post")
@@ -27,8 +29,10 @@ export class PostController {
     summary: "create a new post"
   })
   @Post()
-  createPost(@Body() createPostDto: CreatePostDto) {
-    return this.postService.create(createPostDto);
+  createPost(@Body() createPostDto: CreatePostDto, @ActiveUser() user: ActiveUserData) {
+    console.log(user);
+
+    //return this.postService.create(createPostDto);
   }
 
   @ApiOperation({ description: "deleted an existing   blog post" })
