@@ -1,4 +1,4 @@
-/* eslint-disable prettier/prettier */
+import { GenerateTokenProvider } from "./generate-token-provider";
 import {
   forwardRef,
   Inject,
@@ -9,10 +9,6 @@ import {
 import { UserService } from "src/app/user/providers/users.service";
 import { HashingProvider } from "./hashing.provider";
 import { SignInDto } from "../dto/sign-in.dto";
-import { JwtService } from "@nestjs/jwt";
-import type { ConfigType } from "@nestjs/config";
-import jwtConfig from "../config/jwt.config";
-import { ActiveUserData } from "../interface/active-user-data-interface";
 
 @Injectable()
 export class SignInProvider {
@@ -21,11 +17,7 @@ export class SignInProvider {
     private readonly userService: UserService,
     private readonly hashingProvider: HashingProvider,
 
-    private readonly jwtService: JwtService,
-
-    @Inject(jwtConfig.KEY)
-    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>
-    // private readonly generateTokenProvider: GenerateTokenProvider
+    private readonly generateTokenProvider: GenerateTokenProvider
   ) {}
 
   async signIn(signInDto: SignInDto) {
@@ -47,21 +39,22 @@ export class SignInProvider {
           description: "check password or email again"
         });
       }
-
-      const accessToken = await this.jwtService.signAsync(
-        {
-          sub: user.id,
-          email: user.email
-        } as ActiveUserData,
-        {
-          audience: this.jwtConfiguration.audience,
-          issuer: this.jwtConfiguration.issuer,
-          secret: this.jwtConfiguration.secret,
-          expiresIn: this.jwtConfiguration.accessTokenTtl
-        }
-      );
+      const tokens = await this.generateTokenProvider.generateTokens(user);
+      // const accessToken = await this.jwtService.signAsync(
+      //   {
+      //     sub: user.id,
+      //     email: user.email
+      //   } as ActiveUserData,
+      //   {
+      //     audience: this.jwtConfiguration.audience,
+      //     issuer: this.jwtConfiguration.issuer,
+      //     secret: this.jwtConfiguration.secret,
+      //     expiresIn: this.jwtConfiguration.accessTokenTtl
+      //   }
+      // );
       return {
-        accessToken,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
         user: {
           id: user.id,
           email: user.email,
