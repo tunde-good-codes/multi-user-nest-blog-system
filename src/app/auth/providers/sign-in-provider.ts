@@ -29,9 +29,10 @@ export class SignInProvider {
           description: "check password or email again"
         });
       }
+
       const isPasswordCorrect = await this.hashingProvider.comparePassword(
         signInDto.password,
-        user.password
+        user?.password
       );
 
       if (!isPasswordCorrect) {

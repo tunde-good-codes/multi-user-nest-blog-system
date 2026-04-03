@@ -5,7 +5,7 @@ import { GoogleAuthenticationService } from "./providers/google-authentication.s
 import { GoogleTokenDto } from "./dto/google-token.dto";
 
 @Auth(AuthType.None)
-@Controller("google-authentication")
+@Controller("auth/google-authentication")
 export class GoogleAuthenticationController {
   constructor(private readonly googleAuthenticationService: GoogleAuthenticationService) {}
 

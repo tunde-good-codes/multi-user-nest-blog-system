@@ -41,21 +41,25 @@ export class GoogleAuthenticationService implements OnModuleInit {
   }
 
   async authenticate(googleTokenDto: GoogleTokenDto) {
-    // Verify the Google Token Sent By User
     const loginToken = await this.oauthClient.verifyIdToken({
-      idToken: googleTokenDto.token
+      idToken: googleTokenDto.token,
+      audience: this.jwtConfiguration.googleClientId
     });
-    // Extract the payload from Google Token
-    const { email, sub: googleId } = loginToken.getPayload();
-    // Find the user in the database using the googleId
-    const user = await this.userService.findOneByGoogleId(googleId);
-    // If user id  found in db generate the tokens
-    if (user) {
-      return this.generateTokenProvider.generateTokens(user);
-    } else {
-      // If not create a new user and generate the tokens
+
+    const payload = loginToken.getPayload();
+
+    if (!payload || !payload.sub) {
+      throw new UnauthorizedException("Invalid Google token");
     }
 
-    // throw Unauthorised exception if not Authorised
+    const { email, sub: googleId } = payload;
+
+    const user = await this.userService.findOneByGoogleId(googleId);
+
+    if (user) {
+      return this.generateTokenProvider.generateTokens(user);
+    }
+
+    // create user here
   }
 }
