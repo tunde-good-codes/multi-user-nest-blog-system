@@ -15,13 +15,6 @@ import { GenerateTokenProvider } from "../../providers/generate-token-provider";
 import jwtConfig from "../../config/jwt.config";
 import { GoogleTokenDto } from "../dto/google-token.dto";
 
-interface GoogleTokenPayload {
-  email?: string;
-  given_name?: string;
-  family_name?: string;
-  sub: string; // must exist
-}
-
 @Injectable()
 export class GoogleAuthenticationService implements OnModuleInit {
   private oauthClient: OAuth2Client;
@@ -37,29 +30,61 @@ export class GoogleAuthenticationService implements OnModuleInit {
   onModuleInit() {
     const clientId = this.jwtConfiguration.googleClientId;
     const clientSecret = this.jwtConfiguration.googleClientSecret;
+
+    if (!clientId || !clientSecret) {
+      throw new Error("Google OAuth credentials are not configured");
+    }
+
     this.oauthClient = new OAuth2Client(clientId, clientSecret);
   }
 
   async authenticate(googleTokenDto: GoogleTokenDto) {
-    const loginToken = await this.oauthClient.verifyIdToken({
-      idToken: googleTokenDto.token,
-      audience: this.jwtConfiguration.googleClientId
-    });
+    try {
+      const loginToken = await this.oauthClient.verifyIdToken({
+        idToken: googleTokenDto.token,
+        audience: this.jwtConfiguration.googleClientId
+      });
 
-    const payload = loginToken.getPayload();
+      const payload = loginToken.getPayload();
 
-    if (!payload || !payload.sub) {
-      throw new UnauthorizedException("Invalid Google token");
-    }
+      if (!payload || !payload.sub) {
+        throw new UnauthorizedException("Invalid Google token payload");
+      }
 
-    const { email, sub: googleId } = payload;
+      const { email, sub: googleId, given_name: firstName, family_name: lastName } = payload;
 
-    const user = await this.userService.findOneByGoogleId(googleId);
+      // Validate required email
+      if (!email) {
+        throw new UnauthorizedException(
+          "Email not provided by Google. Please ensure email permissions are granted."
+        );
+      }
 
-    if (user) {
+      // Try to find existing user
+      let user = await this.userService.findOneByGoogleId(googleId);
+
+      // If user doesn't exist, create new one
+      if (!user) {
+        user = await this.userService.createGoogleUser({
+          email, // email is guaranteed to exist here
+          googleId,
+          firstName: firstName || "", // Provide default if undefined
+          lastName: lastName || "" // Provide default if undefined
+        });
+      }
+
+      // Generate and return tokens for both existing and new users
       return this.generateTokenProvider.generateTokens(user);
-    }
+    } catch (error) {
+      // Handle specific errors
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
 
-    // create user here
+      // Log the actual error for debugging (use your logger)
+      // this.logger.error('Google authentication failed:', error);
+
+      throw new UnauthorizedException("Google authentication failed. Please try again.");
+    }
   }
 }

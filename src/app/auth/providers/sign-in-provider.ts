@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { GenerateTokenProvider } from "./generate-token-provider";
 import {
   forwardRef,
@@ -29,10 +30,14 @@ export class SignInProvider {
           description: "check password or email again"
         });
       }
+      let password;
 
+      if (user?.password) {
+        password = user.password;
+      }
       const isPasswordCorrect = await this.hashingProvider.comparePassword(
         signInDto.password,
-        user?.password
+        password
       );
 
       if (!isPasswordCorrect) {
