@@ -22,7 +22,7 @@ async function bootstrap() {
    * swagger configuration
    */
 
-  const config = new DocumentBuilder()
+  const swaggerConfig = new DocumentBuilder()
     .setVersion("1.0")
     .setTitle("NestJs Masterclass  - Blog API")
     .setDescription("the base url for this app is https://localhost:3000")
@@ -32,7 +32,7 @@ async function bootstrap() {
    * instantiate document
    */
 
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup("api", app, document);
   app.enableCors();
   // add global interceptors
