@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { fileTypes } from "./file-type.enum";
 import { ConfigService } from "@nestjs/config";
@@ -28,7 +29,7 @@ export class UploadsService {
 
       const uploadFile: UploadFile = {
         name: uploadResult.public_id,
-        path: uploadResult.secure_url,
+        path: uploadResult.url,
         type: fileTypes.IMAGE,
         mime: file.mimetype,
         size: file.size
