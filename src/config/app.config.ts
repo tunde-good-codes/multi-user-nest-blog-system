@@ -5,7 +5,8 @@ export default registerAs("appConfig", () => ({
   cloudinary: {
     cloudinaryName: process.env.CLOUDINARY_NAME,
     cloudinary_API_KEY: process.env.CLOUDINARY_API_KEY,
-    cloudinary_API_SECRET: process.env.CLOUDINARY_API_SECRET
+    cloudinary_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+    cloudinary_FOLDER_NAME: process.env.CLOUDINARY_FOLDER
   },
   email: {
     mailHost: process.env.MAIL_HOST,
