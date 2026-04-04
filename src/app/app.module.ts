@@ -19,6 +19,7 @@ import { AccessTokenGuard } from "./auth/guards/access-token-guards/access-token
 import { AuthenticationGuard } from "./auth/guards/access-token-guards/authentication.guard";
 import { DataResponseInterceptor } from "src/common/interceptors/data-response/data-response.interceptor";
 import { UploadsModule } from "./uploads/uploads.module";
+import { EmailModule } from './email/email.module';
 
 const env = process.env.NODE_ENV;
 
@@ -52,7 +53,8 @@ const env = process.env.NODE_ENV;
     MetaOptionsModule,
     JwtModule.registerAsync(jwtConfig.asProvider()),
     ConfigModule.forFeature(jwtConfig),
-    UploadsModule
+    UploadsModule,
+    EmailModule
   ],
 
   controllers: [AppController],

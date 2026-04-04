@@ -1,3 +1,4 @@
+/* eslint-disable no-constant-binary-expression */
 import { Injectable, InternalServerErrorException, BadRequestException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
@@ -53,7 +54,9 @@ export class UploadToCloudinaryProvider {
         public_id: result.public_id
       };
     } catch (error) {
-      throw new InternalServerErrorException(error.message || "File upload failed");
+      throw new InternalServerErrorException(
+        `upload error: ${error.message}` || "File upload failed"
+      );
     }
   }
 
@@ -62,6 +65,8 @@ export class UploadToCloudinaryProvider {
 
     const ext = path.extname(file.originalname);
 
-    return `${base}-${Date.now()}-${randomUUID()}${ext}`;
+    const date = new Date().toISOString().replace(/[:.]/g, "-");
+
+    return `${base}-${date}-${randomUUID()}${ext}`;
   }
 }
