@@ -46,11 +46,7 @@ export class CreateUserProvider {
       });
       await this.usersRepository.save(newUser);
 
-      return {
-        success: true,
-        message: "a new user created successfully!",
-        user: newUser
-      };
+      return newUser;
     } catch (e) {
       throw new RequestTimeoutException("Internal server error", {
         description: "can't create a new user: " + e.message

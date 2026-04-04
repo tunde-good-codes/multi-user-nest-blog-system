@@ -1,8 +1,9 @@
-import { NestFactory } from "@nestjs/core";
+import { NestFactory, Reflector } from "@nestjs/core";
 import * as dotenv from "dotenv";
 import { AppModule } from "./app/app.module";
-import { ValidationPipe } from "@nestjs/common";
+import { ClassSerializerInterceptor, ValidationPipe } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+
 dotenv.config();
 
 async function bootstrap() {
@@ -34,6 +35,13 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document);
   app.enableCors();
+  // add global interceptors
+  // interceptor for excluding sensitive data like password
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+
+  // data interceptor
+
+  //app.useGlobalInterceptors(new DataResponseInterceptor()); -> taking it to app.module
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

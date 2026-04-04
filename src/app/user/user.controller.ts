@@ -22,6 +22,7 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @Auth(AuthType.None)
   @Post()
   createUser(@Body() createUserDto: CreateUserDto) {
     return this.userService.createUser(createUserDto);
