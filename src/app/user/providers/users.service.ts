@@ -73,15 +73,11 @@ export class UserService {
     };
   }
   async deleteById(userId: number) {
-    const user = await this.userRepository.findOneBy({
+    const user = await this.userRepository.delete({
       id: userId
     });
 
-    return {
-      user,
-      success: true,
-      message: `user with id: ${userId} deleted `
-    };
+    return user;
   }
   findUserByEmail(email: string) {
     return this.findOneUserByEmailProvider.findUserByEmail(email);

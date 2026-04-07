@@ -1,26 +1,38 @@
-import { Injectable } from '@nestjs/common';
-import { CreateEmailDto } from './dto/create-email.dto';
-import { UpdateEmailDto } from './dto/update-email.dto';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { MailerService } from "@nestjs-modules/mailer";
+import { Injectable } from "@nestjs/common";
+import { User } from "../user/entities/user.entity";
 
 @Injectable()
 export class EmailService {
-  create(createEmailDto: CreateEmailDto) {
-    return 'This action adds a new email';
-  }
+  constructor(private readonly mailerService: MailerService) {}
 
-  findAll() {
-    return `This action returns all email`;
-  }
+  async sendUserWelcome(user: User): Promise<{ success: boolean; info?: any; error?: string }> {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 
-  findOne(id: number) {
-    return `This action returns a #${id} email`;
-  }
+      const year = new Date().getFullYear();
+      const result = await this.mailerService.sendMail({
+        to: user.email,
+        from: "Onboarding Team  <support@nestjs-blog.com>",
 
-  update(id: number, updateEmailDto: UpdateEmailDto) {
-    return `This action updates a #${id} email`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} email`;
+        subject: "Welcome to NestJS Blog!",
+        template: "./welcome",
+        context: {
+          name: user.firstName,
+          email: user.email,
+          url: "https://localhost:3000",
+          year,
+          appName: "nest-js blog  testing "
+        }
+      });
+      console.log("✅ Email sent successfully:", result);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      return { success: true, info: result };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error("❌ Error sending email:", message);
+      return { success: false, error: message };
+    }
   }
 }

@@ -31,7 +31,9 @@ export class UserController {
   createManyUsers(@Body() createUsersDto: CreateManyUsersDto) {
     return this.userService.createMany(createUsersDto);
   }
-  @Delete("many-create")
+
+  @Auth(AuthType.None)
+  @Delete("")
   deleteUser(@Query("userId") userId: number) {
     return this.userService.deleteById(userId);
   }

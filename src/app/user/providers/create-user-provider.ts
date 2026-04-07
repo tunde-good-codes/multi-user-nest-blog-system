@@ -1,15 +1,12 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  RequestTimeoutException,
-  forwardRef
-} from "@nestjs/common";
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { BadRequestException, Inject, Injectable, forwardRef } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../entities/user.entity";
 import { Repository } from "typeorm";
 import { HashingProvider } from "src/app/auth/providers/hashing.provider";
 import { CreateUserDto } from "../dto/create-user.dto";
+import { EmailService } from "src/app/email/email.service";
+import { DataSource } from "typeorm";
 
 @Injectable()
 export class CreateUserProvider {
@@ -19,38 +16,51 @@ export class CreateUserProvider {
      */
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private readonly dataSource: DataSource,
 
     /**
      * Inject BCrypt Provider
      */
     @Inject(forwardRef(() => HashingProvider))
-    private readonly hashingProvider: HashingProvider
+    private readonly hashingProvider: HashingProvider,
+    private readonly emailService: EmailService
   ) {}
 
-  public async createUser(createUserDto: CreateUserDto) {
+  async createUser(createUserDto: CreateUserDto) {
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
-      const userExisting = await this.usersRepository.findOne({
+      const userExisting = await queryRunner.manager.findOne(User, {
         where: { email: createUserDto.email }
       });
 
       if (userExisting) {
-        throw new BadRequestException("User for this email is already existing", {
-          description: "email already existing"
-        });
+        throw new BadRequestException("User already exists");
       }
 
       const hashedPassword = await this.hashingProvider.hashPassword(createUserDto.password);
-      const newUser = this.usersRepository.create({
+
+      const newUser = queryRunner.manager.create(User, {
         ...createUserDto,
         password: hashedPassword
       });
-      await this.usersRepository.save(newUser);
+
+      await queryRunner.manager.save(newUser);
+
+      // 🔥 If this fails → rollback happens
+      await this.emailService.sendUserWelcome(newUser);
+
+      await queryRunner.commitTransaction();
 
       return newUser;
     } catch (e) {
-      throw new RequestTimeoutException("Internal server error", {
-        description: "can't create a new user: " + e.message
-      });
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
     }
   }
 }
